@@ -1,0 +1,11 @@
+Package: df2cypher
+Type: Package
+Title: Convert Data Frames to Cypher
+Version: 0.1.0
+Imports:
+    tibble,
+    glue,
+    jsonlite,
+    purrr,
+    testthat
+
