@@ -2,3 +2,7 @@
 
 export(df_to_cypher_node)
 export(df_to_cypher_relationship)
+export(normalize_column_names)
+export(preview_cypher)
+export(write_cypher_file)
+importFrom(utils,head)

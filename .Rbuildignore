@@ -7,3 +7,4 @@
 ^.*\.Rproj$
 ^df2cypher\.zip$
 ^tests/testthat\.R$
+^LICENSE\.md$
