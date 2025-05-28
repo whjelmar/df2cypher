@@ -1,15 +1,8 @@
-#' Normalize Column Names to Snake Case
-#'
+#' Normalize column names to snake_case
 #' @param df A data.frame or tibble
-#'
-#' @return The same data frame with normalized column names
-#' @export
-#'
-#' @examples
-#' df <- tibble::tibble(Name = "Alice", `Start Date` = Sys.Date())
-#' normalize_column_names(df)
+#' @return Dataframe with normalized column names
 normalize_column_names <- function(df) {
-  stopifnot(is.data.frame(df))
-  names(df) <- janitor::make_clean_names(names(df))
+  names(df) <- gsub("([a-z0-9])([A-Z])", "\\1_\\L\\2", names(df), perl = TRUE)
+  names(df) <- tolower(names(df))
   df
 }

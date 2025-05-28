@@ -1,2 +1,9 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^README\.md$
+^\.github$
+^\.gitignore$
+^\.vscode$
+^.*\.Rproj$
+^df2cypher\.zip$
+^tests/testthat\.R$

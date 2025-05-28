@@ -2,24 +2,22 @@
 % Please edit documentation in R/df_to_cypher_node.R
 \name{df_to_cypher_node}
 \alias{df_to_cypher_node}
-\title{Convert a data frame to Cypher CREATE statements for nodes}
+\title{Convert a data frame to Cypher node creation statements}
 \usage{
-df_to_cypher_node(df, label, id_column)
+df_to_cypher_node(df, label = "Node", id_column = NULL, use_merge = FALSE)
 }
 \arguments{
-\item{df}{A data.frame or tibble representing nodes}
+\item{df}{A data frame with node data}
 
-\item{label}{A character string specifying the label for the nodes}
+\item{label}{The node label}
 
-\item{id_column}{The column name used as a unique identifier for each node}
+\item{id_column}{Column to use as the node identifier}
+
+\item{use_merge}{Logical, whether to use MERGE instead of CREATE}
 }
 \value{
-A character vector of Cypher CREATE statements
+A character vector of Cypher statements
 }
 \description{
-Convert a data frame to Cypher CREATE statements for nodes
-}
-\examples{
-df <- tibble::tibble(id = 1:2, name = c("Alice", "Bob"))
-df_to_cypher_node(df, label = "Person", id_column = "id")
+Convert a data frame to Cypher node creation statements
 }

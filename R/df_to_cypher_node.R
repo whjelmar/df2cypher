@@ -1,23 +1,36 @@
-#' Convert a data frame to Cypher CREATE statements for nodes
+#' Convert a data frame to Cypher node creation statements
 #'
-#' @param df A data.frame or tibble representing nodes
-#' @param label A character string specifying the label for the nodes
-#' @param id_column The column name used as a unique identifier for each node
+#' @param df A data frame with node data
+#' @param label The node label
+#' @param id_column Column to use as the node identifier
+#' @param use_merge Logical, whether to use MERGE instead of CREATE
 #'
-#' @return A character vector of Cypher CREATE statements
+#' @return A character vector of Cypher statements
 #' @export
-#'
-#' @examples
-#' df <- tibble::tibble(id = 1:2, name = c("Alice", "Bob"))
-#' df_to_cypher_node(df, label = "Person", id_column = "id")
-df_to_cypher_node <- function(df, label, id_column) {
-  stopifnot(is.data.frame(df))
-  stopifnot(id_column %in% names(df))
+df_to_cypher_node <- function(df, label = "Node", id_column = NULL, use_merge = FALSE) {
+  if (!is.null(id_column) && !id_column %in% names(df)) {
+    stop("id_column not found in data frame")
+  }
   
   apply(df, 1, function(row) {
-    props <- purrr::imap_chr(row, ~ glue::glue("{.y}: {jsonlite::toJSON(.x, auto_unbox = TRUE)}"))
-    props_str <- glue::glue_collapse(props, sep = ", ")
-    glue::glue("CREATE (:{label} {{{props_str}}})")
-  }) |> unname()
+    row <- as.list(row)
+    props <- glue::glue_collapse(
+      purrr::imap_chr(row, function(val, key) {
+        quoted_val <- if (is.numeric(val)) val else paste0('"', gsub('"', '\\"', val), '"')
+        glue::glue("{key}: {quoted_val}")
+      }),
+      sep = ", "
+    )
+    
+    id_clause <- if (!is.null(id_column)) {
+      node_id <- row[[id_column]]
+      quoted_id <- if (is.numeric(node_id)) node_id else paste0('"', gsub('"', '\\"', node_id), '"')
+      glue::glue("n:{label} {{ {id_column}: {quoted_id} }}")
+    } else {
+      glue::glue("n:{label} {{ {props} }}")
+    }
+    
+    verb <- if (use_merge) "MERGE" else "CREATE"
+    glue::glue("{verb} ({id_clause})")
+  })
 }
-

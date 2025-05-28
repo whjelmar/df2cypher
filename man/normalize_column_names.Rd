@@ -2,7 +2,7 @@
 % Please edit documentation in R/normalize_column_names.R
 \name{normalize_column_names}
 \alias{normalize_column_names}
-\title{Normalize Column Names to Snake Case}
+\title{Normalize column names to snake_case}
 \usage{
 normalize_column_names(df)
 }
@@ -10,12 +10,8 @@ normalize_column_names(df)
 \item{df}{A data.frame or tibble}
 }
 \value{
-The same data frame with normalized column names
+Dataframe with normalized column names
 }
 \description{
-Normalize Column Names to Snake Case
-}
-\examples{
-df <- tibble::tibble(Name = "Alice", `Start Date` = Sys.Date())
-normalize_column_names(df)
+Normalize column names to snake_case
 }

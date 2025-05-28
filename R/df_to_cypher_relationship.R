@@ -1,34 +1,90 @@
-#' Convert a data frame to Cypher CREATE statements for relationships
+#' Convert a data frame into Cypher relationship statements
 #'
-#' @param df A data.frame or tibble representing relationships
-#' @param from_label The label of the start node
-#' @param to_label The label of the end node
-#' @param rel_type The relationship type (e.g., "KNOWS")
-#' @param from_col Column in df indicating the start node ID
-#' @param to_col Column in df indicating the end node ID
-#' @param props_cols Optional character vector of property columns for the relationship
+#' @param df A data frame containing relationship data.
+#' @param rel_type A string indicating the type of relationship.
+#' @param from_col The column name containing the source node IDs.
+#' @param to_col The column name containing the target node IDs.
+#' @param direction Either "out" (default), "in", or "undirected".
+#' @param use_merge Logical. If TRUE, uses MERGE instead of CREATE.
+#' @param on_create Named list of properties to set on CREATE.
+#' @param on_match Named list of properties to set on MATCH.
 #'
-#' @return A character vector of Cypher CREATE statements for relationships
+#' @return A character vector of Cypher statements.
 #' @export
-#'
-#' @examples
-#' df <- tibble::tibble(from = 1, to = 2, since = 2020)
-#' df_to_cypher_relationship(df, "Person", "Person", "KNOWS", "from", "to", "since")
-df_to_cypher_relationship <- function(df, from_label, to_label, rel_type,
-                                      from_col, to_col, props_cols = character()) {
-  stopifnot(is.data.frame(df))
+df_to_cypher_relationship <- function(df,
+                                      rel_type = "RELATES_TO",
+                                      from_col,
+                                      to_col,
+                                      direction = "out",
+                                      use_merge = FALSE,
+                                      on_create = NULL,
+                                      on_match = NULL) {
   stopifnot(from_col %in% names(df), to_col %in% names(df))
   
-  apply(df, 1, function(row) {
-    props <- if (length(props_cols) > 0) {
-      purrr::imap_chr(row[props_cols], ~ glue::glue("{.y}: {jsonlite::toJSON(.x, auto_unbox = TRUE)}"))
-    } else character()
-    props_str <- glue::glue_collapse(props, sep = ", ")
+  quote_value <- function(value) {
+    if (is.numeric(value)) return(as.character(value))
+    if (tolower(value) %in% c("true", "false")) return(tolower(value))
+    glue::glue('"', gsub('"', '\\"', value), '"')
+  }
+  
+  build_property_string <- function(props) {
+    if (is.null(props)) return("")
+    kv <- vapply(names(props), function(k) {
+      glue::glue("{k}: {quote_value(props[[k]])}")
+    }, FUN.VALUE = character(1))
+    glue::glue_collapse(kv, sep = ", ")
+  }
+  
+  rel_dir_template <- switch(
+    direction,
+    "out" = "-[r:{rel_type}]->",
+    "in" = "<-[r:{rel_type}]-",
+    "undirected" = "-[r:{rel_type}]-",
+    stop("Invalid direction")
+  )
+  
+  statements <- switch(
+    direction,
     
-    glue::glue(
-      "MATCH (a:{from_label} {{ {from_col}: {jsonlite::toJSON(row[[from_col]], auto_unbox = TRUE)} }}), ",
-      "(b:{to_label} {{ {to_col}: {jsonlite::toJSON(row[[to_col]], auto_unbox = TRUE)} }}) ",
-      "CREATE (a)-[:{rel_type} {{{props_str}}}]->(b)"
-    )
-  }) |> unname()
+    "out" = mapply(function(from, to) {
+      from_id <- quote_value(from)
+      to_id <- quote_value(to)
+      match_stmt <- glue::glue("MATCH (a), (b) WHERE a.id = {from_id} AND b.id = {to_id}")
+      rel_stmt <- glue::glue("{if (use_merge) 'MERGE' else 'CREATE'} (a){glue::glue(rel_dir_template)}(b)")
+      create_clause <- if (!is.null(on_create)) glue::glue("ON CREATE SET {build_property_string(on_create)}") else ""
+      match_clause <- if (!is.null(on_match)) glue::glue("ON MATCH SET {build_property_string(on_match)}") else ""
+      glue::glue("{match_stmt} {rel_stmt} {create_clause} {match_clause}")
+    }, df[[from_col]], df[[to_col]], SIMPLIFY = TRUE, USE.NAMES = FALSE),
+    
+    "in" = mapply(function(from, to) {
+      from_id <- quote_value(from)
+      to_id <- quote_value(to)
+      match_stmt <- glue::glue("MATCH (a), (b) WHERE a.id = {from_id} AND b.id = {to_id}")
+      rel_stmt <- glue::glue("{if (use_merge) 'MERGE' else 'CREATE'} (a){glue::glue(rel_dir_template)}(b)")
+      create_clause <- if (!is.null(on_create)) glue::glue("ON CREATE SET {build_property_string(on_create)}") else ""
+      match_clause <- if (!is.null(on_match)) glue::glue("ON MATCH SET {build_property_string(on_match)}") else ""
+      glue::glue("{match_stmt} {rel_stmt} {create_clause} {match_clause}")
+    }, df[[from_col]], df[[to_col]], SIMPLIFY = TRUE, USE.NAMES = FALSE),
+    
+    "undirected" = unlist(mapply(function(from, to) {
+      from_id <- quote_value(from)
+      to_id <- quote_value(to)
+      
+      match_stmt_1 <- glue::glue("MATCH (a), (b) WHERE a.id = {from_id} AND b.id = {to_id}")
+      rel_stmt_1 <- glue::glue("{if (use_merge) 'MERGE' else 'CREATE'} (a){glue::glue(rel_dir_template)}(b)")
+      
+      match_stmt_2 <- glue::glue("MATCH (a), (b) WHERE a.id = {to_id} AND b.id = {from_id}")
+      rel_stmt_2 <- glue::glue("{if (use_merge) 'MERGE' else 'CREATE'} (a){glue::glue(rel_dir_template)}(b)")
+      
+      create_clause <- if (!is.null(on_create)) glue::glue("ON CREATE SET {build_property_string(on_create)}") else ""
+      match_clause <- if (!is.null(on_match)) glue::glue("ON MATCH SET {build_property_string(on_match)}") else ""
+      
+      c(
+        glue::glue("{match_stmt_1} {rel_stmt_1} {create_clause} {match_clause}"),
+        glue::glue("{match_stmt_2} {rel_stmt_2} {create_clause} {match_clause}")
+      )
+    }, df[[from_col]], df[[to_col]], SIMPLIFY = FALSE), use.names = FALSE)
+  )
+  
+  return(statements)
 }

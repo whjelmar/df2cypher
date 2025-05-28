@@ -2,40 +2,39 @@
 % Please edit documentation in R/df_to_cypher_relationship.R
 \name{df_to_cypher_relationship}
 \alias{df_to_cypher_relationship}
-\title{Convert a data frame to Cypher CREATE statements for relationships}
+\title{Convert a data frame into Cypher relationship statements}
 \usage{
 df_to_cypher_relationship(
   df,
-  from_label,
-  to_label,
-  rel_type,
+  rel_type = "RELATES_TO",
   from_col,
   to_col,
-  props_cols = character()
+  direction = "out",
+  use_merge = FALSE,
+  on_create = NULL,
+  on_match = NULL
 )
 }
 \arguments{
-\item{df}{A data.frame or tibble representing relationships}
+\item{df}{A data frame containing relationship data.}
 
-\item{from_label}{The label of the start node}
+\item{rel_type}{A string indicating the type of relationship.}
 
-\item{to_label}{The label of the end node}
+\item{from_col}{The column name containing the source node IDs.}
 
-\item{rel_type}{The relationship type (e.g., "KNOWS")}
+\item{to_col}{The column name containing the target node IDs.}
 
-\item{from_col}{Column in df indicating the start node ID}
+\item{direction}{Either "out" (default), "in", or "undirected".}
 
-\item{to_col}{Column in df indicating the end node ID}
+\item{use_merge}{Logical. If TRUE, uses MERGE instead of CREATE.}
 
-\item{props_cols}{Optional character vector of property columns for the relationship}
+\item{on_create}{Named list of properties to set on CREATE.}
+
+\item{on_match}{Named list of properties to set on MATCH.}
 }
 \value{
-A character vector of Cypher CREATE statements for relationships
+A character vector of Cypher statements.
 }
 \description{
-Convert a data frame to Cypher CREATE statements for relationships
-}
-\examples{
-df <- tibble::tibble(from = 1, to = 2, since = 2020)
-df_to_cypher_relationship(df, "Person", "Person", "KNOWS", "from", "to", "since")
+Convert a data frame into Cypher relationship statements
 }
