@@ -1,22 +1,15 @@
 # 📍 `df2cypher` Project Roadmap
 
-## ✅ Recently Completed (v0.1.1)
-- ✅ Full support for directed and undirected Cypher relationships.
-- ✅ Core utilities implemented: `normalize_column_names`, `preview_cypher`, `write_cypher_file`.
-- ✅ Full test coverage with `testthat`.
-- ✅ Style guide enforcement and internal consistency improvements.
+## Recently Completed (v0.1.3)
+
+### 🔧 Functional Enhancements
+- [ ] Support **automatic property typing**:
+  - Strings, numbers, booleans converted from tibble automatically.
+  - Option to override via schema or hints.
 
 ---
 
-## 🗺️ Next Milestone (v0.2.0)
-
-### 📘 Documentation & Vignettes
-- [ ] Create `vignettes/df2cypher-intro.Rmd`:
-  - Walkthrough of transforming a data frame into Cypher node and relationship statements.
-  - Best practices for formatting input data.
-- [ ] Create `vignettes/advanced-usage.Rmd`:
-  - Merging, `ON CREATE SET` / `ON MATCH SET`, directionality, using with Neo4j via `neo4j` package or HTTP endpoint.
-- [ ] Add examples for edge cases and quirks (e.g., NULLs, missing columns, quoting issues).
+## 🔭 Future Enhancements (v0.1.4+)
 
 ### 🔧 Functional Enhancements
 - [ ] Support **automatic property typing**:
@@ -29,10 +22,6 @@
 - [ ] Add performance tests for large data sets (10K–1M rows).
 - [ ] Test with non-default tibbles, such as grouped tibbles or those with rownames.
 - [ ] Add `covr::report()` integration for test coverage.
-
----
-
-## 🔭 Future Enhancements (v0.3.x+)
 
 ### 🔌 Extensibility
 - [ ] Add **template/plugin support** for Cypher output formatting.
