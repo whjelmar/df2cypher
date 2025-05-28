@@ -12,13 +12,15 @@ df_to_cypher_relationship(
   direction = "out",
   use_merge = FALSE,
   on_create = NULL,
-  on_match = NULL
+  on_match = NULL,
+  rel_type_column = NULL,
+  naming_style = "as_is"
 )
 }
 \arguments{
 \item{df}{A data frame containing relationship data.}
 
-\item{rel_type}{A string indicating the type of relationship.}
+\item{rel_type}{A string for static relationship type (ignored if `rel_type_column` is used).}
 
 \item{from_col}{The column name containing the source node IDs.}
 
@@ -31,6 +33,18 @@ df_to_cypher_relationship(
 \item{on_create}{Named list of properties to set on CREATE.}
 
 \item{on_match}{Named list of properties to set on MATCH.}
+
+\item{rel_type_column}{Optional column name containing dynamic relationship types.}
+
+\item{naming_style}{Naming convention to apply to values in `rel_type_column`. One of:
+\itemize{
+  \item{\code{"as_is"} (default): no change}
+  \item{\code{"snake"}: snake_case}
+  \item{\code{"camel"}: camelCase}
+  \item{\code{"pascal"}: PascalCase}
+  \item{\code{"upper"}: UPPER_CASE}
+  \item{\code{"lower"}: lowercase}
+}}
 }
 \value{
 A character vector of Cypher statements.
