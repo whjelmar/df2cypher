@@ -12,8 +12,8 @@ df_to_cypher_node <- function(df, label = "Node", id_column = "id", use_merge = 
     stop("id_column not found in data frame")
   }
   
-  apply(df, 1, function(row) {
-    row <- as.list(row)
+  purrr::pmap_chr(df, function(...) {
+    row <- list(...)
     props <- glue::glue_collapse(
       purrr::imap_chr(row, function(val, key) {
         quoted_val <- if (is.numeric(val)) val else paste0('"', gsub('"', '\\"', val), '"')
@@ -22,15 +22,6 @@ df_to_cypher_node <- function(df, label = "Node", id_column = "id", use_merge = 
       sep = ", "
     )
     
-    id_clause <- if (!is.null(id_column)) {
-      node_id <- row[[id_column]]
-      quoted_id <- if (is.numeric(node_id)) node_id else paste0('"', gsub('"', '\\"', node_id), '"')
-      glue::glue("n:{label} {{ {id_column}: {quoted_id} }}")
-    } else {
-      glue::glue("n:{label} {{ {props} }}")
-    }
-    
-    verb <- if (use_merge) "MERGE" else "CREATE"
-    glue::glue("{verb} ({id_clause})")
+    glue::glue("{if (use_merge) 'MERGE' else 'CREATE'} (n:{label} {{ {props} }})")
   })
 }
