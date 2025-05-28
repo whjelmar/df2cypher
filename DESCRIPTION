@@ -1,10 +1,10 @@
 Package: df2cypher
+Title: Convert Data Frames to Cypher Statements for Neo4j
+Version: 0.1.1
 Type: Package
-Title: Convert Data Frames to Cypher
 Authors@R: 
     person("Walter", "Hjelmar", email = "walter@hjelmar.com", role = c("aut", "cre"))
 Description: A utility package to create cypher statements from df and tibbles.
-Version: 0.1.0
 Depends: R (>= 4.0.0)
 Imports:
   purrr,
