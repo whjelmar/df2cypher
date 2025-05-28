@@ -20,8 +20,8 @@ jobs:
 
       - name: Install R dependencies
         run: |
-          install.packages(c("devtools", "roxygen2", "testthat", "covr", "janitor", "glue", "jsonlite", "purrr", "tibble"))
-          devtools::install_deps(dependencies = TRUE)
+          Rscript -e 'install.packages(c("devtools", "roxygen2", "testthat", "covr", "janitor", "glue", "jsonlite", "purrr", "tibble"))'
+          Rscript -e 'devtools::install_deps(dependencies = TRUE)'
 
       - name: Run R CMD check
         run: |
