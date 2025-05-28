@@ -20,13 +20,6 @@
 #'
 #' @return A character vector of Cypher node creation statements.
 #' @export
-#'
-#' @examples
-#' df <- data.frame(id = 1, name = "Walter", type = "admin")
-#' df_to_cypher_node(df, label = "User", id_column = "id")
-#'
-#' # Using dynamic label
-#' df_to_cypher_node(df, label_column = "type", naming_style = "pascal")
 df_to_cypher_node <- function(df,
                               label = "Node",
                               id_column = "id",
@@ -48,8 +41,7 @@ df_to_cypher_node <- function(df,
     
     props <- glue::glue_collapse(
       purrr::imap_chr(row, function(val, key) {
-        quoted_val <- if (is.numeric(val)) val else paste0('"', gsub('"', '\\"', val), '"')
-        glue::glue("{key}: {quoted_val}")
+        glue::glue("{key}: {quote_for_cypher(val)}")
       }),
       sep = ", "
     )

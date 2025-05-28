@@ -41,10 +41,3 @@ A character vector of Cypher node creation statements.
 Generates Cypher `CREATE` or `MERGE` statements for each row in a data frame,
 optionally supporting dynamic labels and naming convention transformation.
 }
-\examples{
-df <- data.frame(id = 1, name = "Walter", type = "admin")
-df_to_cypher_node(df, label = "User", id_column = "id")
-
-# Using dynamic label
-df_to_cypher_node(df, label_column = "type", naming_style = "pascal")
-}

@@ -12,43 +12,31 @@ df_to_cypher_relationship(
   direction = "out",
   use_merge = FALSE,
   on_create = NULL,
-  on_match = NULL,
-  rel_type_column = NULL,
-  naming_style = "as_is"
+  on_match = NULL
 )
 }
 \arguments{
 \item{df}{A data frame containing relationship data.}
 
-\item{rel_type}{A string for static relationship type (ignored if `rel_type_column` is used).}
+\item{rel_type}{A string indicating the type of relationship (e.g., "KNOWS").}
 
 \item{from_col}{The column name containing the source node IDs.}
 
 \item{to_col}{The column name containing the target node IDs.}
 
-\item{direction}{Either "out" (default), "in", or "undirected".}
+\item{direction}{Relationship direction: one of "out" (default), "in", or "undirected".}
 
-\item{use_merge}{Logical. If TRUE, uses MERGE instead of CREATE.}
+\item{use_merge}{Logical. If TRUE, uses `MERGE` instead of `CREATE`.}
 
-\item{on_create}{Named list of properties to set on CREATE.}
+\item{on_create}{Optional named list of properties to set using `ON CREATE SET`.}
 
-\item{on_match}{Named list of properties to set on MATCH.}
-
-\item{rel_type_column}{Optional column name containing dynamic relationship types.}
-
-\item{naming_style}{Naming convention to apply to values in `rel_type_column`. One of:
-\itemize{
-  \item{\code{"as_is"} (default): no change}
-  \item{\code{"snake"}: snake_case}
-  \item{\code{"camel"}: camelCase}
-  \item{\code{"pascal"}: PascalCase}
-  \item{\code{"upper"}: UPPER_CASE}
-  \item{\code{"lower"}: lowercase}
-}}
+\item{on_match}{Optional named list of properties to set using `ON MATCH SET`.}
 }
 \value{
-A character vector of Cypher statements.
+A character vector of Cypher relationship statements.
 }
 \description{
-Convert a data frame into Cypher relationship statements
+Generates Cypher `CREATE` or `MERGE` statements for relationships based on a data frame.
+Supports directional and undirected relationships, optional attributes, and conditional
+`ON CREATE` / `ON MATCH` clauses. Uses a quoting function to handle automatic type conversion.
 }
