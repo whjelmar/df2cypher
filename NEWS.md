@@ -1,5 +1,22 @@
 # df2cypher News
 
+## v0.1.3
+
+## 🚀 New Features
+
+- **Automatic property type inference**:
+  - New internal helper `quote_for_cypher()` now ensures proper quoting and escaping of strings, while preserving native handling for:
+    - Numeric values (left unquoted)
+    - Boolean values (`TRUE`/`FALSE` → `true`/`false`)
+    - `NA` values (excluded from Cypher statements)
+  - Integrated into `df_to_cypher_node()` and `df_to_cypher_relationship()` for cleaner and more accurate Cypher code generation
+
+## ✅ Improvements
+
+- Robust unit tests added for type inference and quoting logic
+
+---
+
 ## v0.1.2
 
 ### ✨ Features
