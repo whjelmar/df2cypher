@@ -1,6 +1,6 @@
 Package: df2cypher
 Title: Convert Data Frames to Cypher Statements for Neo4j
-Version: 0.1.1
+Version: 0.1.2
 Type: Package
 Authors@R: 
     person("Walter", "Hjelmar", email = "walter@hjelmar.com", role = c("aut", "cre"))
@@ -15,7 +15,8 @@ Suggests:
   jsonlite,
   janitor,
   knitr,
-  rmarkdown
+  rmarkdown,
+  httr
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

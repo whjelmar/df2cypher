@@ -1,6 +1,28 @@
 # df2cypher News
 
-## v0.1.1 (Upcoming)
+## v0.1.2
+
+### ✨ Features
+
+- **Dynamic Relationship Type Naming**
+  - `df_to_cypher_relationship()` now supports deriving relationship type names from a column in the data frame.
+  - Naming convention styles include:
+    - `snake_case`
+    - `camelCase`
+    - `PascalCase`
+    - `UPPER_CASE`
+    - `lowercase`
+    - `as_is` (default)
+
+- **New Helper**: `apply_naming_convention()` for label/type style transformations.
+
+### ✅ Backward Compatibility
+
+- Default behavior remains unchanged unless the new `rel_type_column` argument is specified.
+
+---
+
+## v0.1.1 
 ### 🚀 New Features
 - Added support for **directional control in relationships** via the `direction` parameter in `df_to_cypher_relationship()`, supporting `"out"`, `"in"`, and `"undirected"` modes.
 - Introduced new utility function: `normalize_column_names()` to standardize column names used in Cypher generation.
