@@ -1,0 +1,106 @@
+
+---
+title: "Advanced Usage of df2cypher"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Advanced Usage of df2cypher}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(df2cypher)
+```
+
+## Introduction
+
+This advanced vignette explores more complex usage of the `df2cypher` package, including support for `MERGE`, setting `ON CREATE` and `ON MATCH` properties, and handling undirected relationships.
+
+## Node Example with Multiple Labels and Data Normalization
+
+```{r advanced-nodes}
+nodes_df <- data.frame(
+  node_id = c("n1", "n2", "n3"),
+  fullName = c("Diana Prince", "Bruce Wayne", "Clark Kent"),
+  role = c("Analyst", "Manager", "Engineer"),
+  stringsAsFactors = FALSE
+)
+
+# Normalize columns (e.g., snake_case)
+nodes_df <- normalize_column_names(nodes_df)
+
+node_statements <- df_to_cypher_node(
+  df = nodes_df,
+  label = "Employee",
+  id_column = "node_id"
+)
+
+preview_cypher(node_statements)
+```
+
+## Using MERGE and ON CREATE/ON MATCH for Relationships
+
+```{r advanced-relationships}
+rel_df <- data.frame(
+  source = c("n1", "n2"),
+  target = c("n2", "n3"),
+  trust_level = c("low", "high"),
+  stringsAsFactors = FALSE
+)
+
+rel_statements <- df_to_cypher_relationship(
+  df = rel_df,
+  from_col = "source",
+  to_col = "target",
+  rel_type = "TRUSTS",
+  direction = "out",
+  use_merge = TRUE,
+  on_create = list(created = "2023-01-01"),
+  on_match = list(updated = "2024-01-01")
+)
+
+preview_cypher(rel_statements)
+```
+
+## Undirected Relationship Example
+
+```{r undirected}
+undirected_df <- data.frame(
+  source = c("n1"),
+  target = c("n3"),
+  stringsAsFactors = FALSE
+)
+
+undirected_statements <- df_to_cypher_relationship(
+  df = undirected_df,
+  from_col = "source",
+  to_col = "target",
+  rel_type = "COLLABORATES_WITH",
+  direction = "undirected"
+)
+
+preview_cypher(undirected_statements)
+```
+
+## Writing All Statements to File
+
+```{r write-advanced}
+all_statements <- c(node_statements, rel_statements, undirected_statements)
+tmp <- tempfile(fileext = ".cypher")
+write_cypher_file(all_statements, tmp)
+cat("Cypher statements written to:", tmp)
+```
+
+## Summary
+
+This vignette demonstrated:
+- Using `normalize_column_names` for schema consistency
+- `MERGE` for idempotent writes
+- `ON CREATE` and `ON MATCH` clauses
+- Undirected relationship handling
+
+Use these tools to enrich your Neo4j data model cleanly and efficiently.
