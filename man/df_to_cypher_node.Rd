@@ -4,7 +4,7 @@
 \alias{df_to_cypher_node}
 \title{Convert a data frame to Cypher node creation statements}
 \usage{
-df_to_cypher_node(df, label = "Node", id_column = NULL, use_merge = FALSE)
+df_to_cypher_node(df, label = "Node", id_column = "id", use_merge = FALSE)
 }
 \arguments{
 \item{df}{A data frame with node data}

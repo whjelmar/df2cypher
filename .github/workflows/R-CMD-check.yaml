@@ -16,17 +16,20 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
+          sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev pandoc
 
-      - name: Install R dependencies
+      - name: Set up R dependencies
         run: |
-          Rscript -e 'install.packages(c("devtools", "roxygen2", "testthat", "covr", "janitor", "glue", "jsonlite", "purrr", "tibble"))'
+          Rscript -e 'install.packages(c("rcmdcheck", "devtools", "roxygen2", "testthat", "covr", "janitor", "glue", "jsonlite", "purrr", "tibble", "knitr", "rmarkdown"))'
           Rscript -e 'devtools::install_deps(dependencies = TRUE)'
 
-      - name: Run R CMD check
+      - name: Run R CMD check with vignettes
         run: |
-          devtools::check()
+          Rscript -e 'rcmdcheck::rcmdcheck(build_args = "--no-manual", args = c("--as-cran", "--build-vignettes"), error_on = "error")'
 
       - name: Run test coverage
         run: |
-          covr::report()
+          Rscript -e 'covr::codecov()'
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        if: ${{ secrets.CODECOV_TOKEN != '' }}

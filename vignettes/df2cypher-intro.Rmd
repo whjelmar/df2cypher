@@ -1,0 +1,77 @@
+
+---
+title: "Getting Started with df2cypher"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with df2cypher}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(df2cypher)
+```
+
+## Introduction
+
+The `df2cypher` package provides functions to help you convert R data frames into Cypher statements suitable for importing into a Neo4j graph database.
+
+This vignette walks through a basic example to demonstrate how to convert node and relationship data frames into Cypher statements and preview them.
+
+## Creating Nodes
+
+Start by creating a sample data frame for nodes:
+
+```{r nodes}
+nodes_df <- data.frame(
+  id = c("1", "2", "3"),
+  name = c("Alice", "Bob", "Charlie"),
+  age = c(34, 29, 41),
+  stringsAsFactors = FALSE
+)
+
+node_statements <- df_to_cypher_node(
+  df = nodes_df,
+  label = "Person",
+  id_column = "id"
+)
+
+preview_cypher(node_statements)
+```
+
+## Creating Relationships
+
+Now, create a data frame for relationships between the nodes:
+
+```{r relationships}
+rel_df <- data.frame(
+  source = c("1", "2"),
+  target = c("2", "3"),
+  since = c(2020, 2021),
+  stringsAsFactors = FALSE
+)
+
+rel_statements <- df_to_cypher_relationship(
+  df = rel_df,
+  from_col = "source",
+  to_col = "target",
+  rel_type = "KNOWS",
+  direction = "out"
+)
+
+preview_cypher(rel_statements)
+```
+
+## Conclusion
+
+You now have a set of Cypher statements for both nodes and relationships. These can be exported to a file and imported into Neo4j.
+
+```{r write-cypher}
+tmp <- tempfile(fileext = ".cypher")
+write_cypher_file(c(node_statements, rel_statements), tmp)
+cat("Cypher statements written to:", tmp)
+```

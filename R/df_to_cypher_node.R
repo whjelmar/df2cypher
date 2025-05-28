@@ -7,7 +7,7 @@
 #'
 #' @return A character vector of Cypher statements
 #' @export
-df_to_cypher_node <- function(df, label = "Node", id_column = NULL, use_merge = FALSE) {
+df_to_cypher_node <- function(df, label = "Node", id_column = "id", use_merge = FALSE) {
   if (!is.null(id_column) && !id_column %in% names(df)) {
     stop("id_column not found in data frame")
   }
