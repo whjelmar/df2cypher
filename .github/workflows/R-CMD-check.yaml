@@ -30,6 +30,4 @@ jobs:
       - name: Run test coverage
         run: |
           Rscript -e 'covr::codecov()'
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        if: ${{ secrets.CODECOV_TOKEN != '' }}
+        
