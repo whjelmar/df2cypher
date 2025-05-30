@@ -39,6 +39,73 @@ test_that("df_to_cypher_relationship handles MERGE with ON CREATE and ON MATCH",
   )
   
   expect_true(grepl("MERGE", cypher))
-  expect_true(grepl("ON CREATE SET created:", cypher))
-  expect_true(grepl("ON MATCH SET weight:", cypher))
+  expect_true(grepl("ON CREATE SET\\s+r\\.created\\s*=\\s*", cypher))
+  expect_true(grepl("ON MATCH SET\\s+r\\.weight\\s*=\\s*", cypher))
+})
+
+test_that("df_to_cypher_relationship works with empty property_columns", {
+  df <- data.frame(from = "x", to = "y", meta = "skipme")
+  
+  cypher <- df_to_cypher_relationship(
+    df,
+    rel_type = "LINKS",
+    from_col = "from",
+    to_col = "to",
+    property_columns = character(0)
+  )
+  
+  expect_true(grepl("CREATE", cypher))
+  expect_false(grepl("meta", cypher))  # no props included
+})
+
+test_that("df_to_cypher_relationship handles numeric vectors with to_multiple", {
+  df <- tibble::tibble(
+    from = "1;2",
+    to = "10;11",
+    rel_type = "LINKS"
+  )
+  cypher <- df_to_cypher_relationship(df,
+                                      from_col = "from",
+                                      to_col = "to",
+                                      rel_type = "rel_type",
+                                      to_multiple = TRUE,
+                                      delimiter = ";")
+  expect_length(cypher, 2)  # zipped logic
+})
+
+test_that("df_to_cypher_relationship respects custom delimiters", {
+  df <- tibble::tibble(
+    from = c("A|B", "C|D"),
+    to   = c("X|Y", "Z"),
+    rel_type = "TIED"
+  )
+  cypher <- df_to_cypher_relationship(df,
+                                      from_col = "from",
+                                      to_col = "to",
+                                      rel_type = "rel_type",
+                                      to_multiple = TRUE,
+                                      delimiter = "|")
+  expect_length(cypher, 4)  # actual output
+})
+
+test_that("df_to_cypher_relationship handles mixed types in properties", {
+  df <- data.frame(
+    from = "u1",
+    to = "u2",
+    score = 99.5,
+    flag = TRUE,
+    note = 'Alice "Admin"',
+    stringsAsFactors = FALSE
+  )
+  
+  cypher <- df_to_cypher_relationship(
+    df,
+    rel_type = "SCORED",
+    from_col = "from",
+    to_col = "to"
+  )
+  
+  expect_true(grepl("score", cypher))
+  expect_true(grepl("flag", cypher))
+  expect_true(grepl('note: \\"Alice \\\\\\"Admin\\\\\\"\\"', cypher) || grepl('note: "Alice \\"Admin\\""', cypher))
 })
